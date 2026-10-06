@@ -1,33 +1,29 @@
 // ──────────────────────────────────────────────────────────
-// Form Builder State — TypeScript interfaces
+// Form Builder State — Unified TypeScript interfaces
 //
-// Supports both FLAT columns and GROUPED column headers.
+// A single Column model that handles both simple columns
+// and grouped column headers (parent + children).
 // ──────────────────────────────────────────────────────────
 
-// ── Column definition in the builder ──
 export type BuilderColumnType = 'text' | 'number' | 'checkbox' | 'textarea' | 'select';
 
 export interface BuilderColumn {
-  /** Unique key within the section (snake_case, auto-generated) */
-  key: string;
+  /** Unique ID within the section (auto-generated) */
+  id: string;
   /** Display label shown in the rendered table header */
   label: string;
+  /** Whether this column acts as a group header with children */
+  isGroup?: boolean;
+  /** Column key — present for non-group columns (snake_case, auto-generated) */
+  key?: string;
   /** Data type for editable columns */
-  type: BuilderColumnType;
+  type?: BuilderColumnType;
   /** Whether this column is user-editable or read-only */
-  editable: boolean;
+  editable?: boolean;
   /** Options for 'select' type columns */
   options?: string[];
-}
-
-// ── Column group (for grouped headers like M11 → ESTÁNDAR + LECTURA) ──
-export interface BuilderColumnGroup {
-  /** Unique ID (auto-generated) */
-  id: string;
-  /** Group header label (e.g. "M11", "TOLERANCIA") */
-  label: string;
-  /** Sub-columns inside this group */
-  children: BuilderColumn[];
+  /** Sub-columns (only when isGroup === true) */
+  children?: BuilderColumn[];
 }
 
 // ── Row definition in the builder ──
@@ -58,21 +54,14 @@ export interface BuilderFooter {
   input?: BuilderFooterInput;
 }
 
-// ── Section layout mode ──
-export type SectionLayout = 'flat' | 'grouped';
-
 // ── Section in the builder ──
 export interface BuilderSection {
   /** Unique ID (auto-generated, e.g. "sec_1") */
   id: string;
   /** Section title displayed as <h2> */
   title: string;
-  /** Layout mode: flat columns or grouped column headers */
-  layout: SectionLayout;
-  /** Flat columns (used when layout === 'flat') */
+  /** Unified column list — each column can be simple or a group with children */
   columns: BuilderColumn[];
-  /** Grouped column headers (used when layout === 'grouped') */
-  columnGroups: BuilderColumnGroup[];
   /** Row data */
   rows: BuilderRow[];
   /** Optional footer (note + inline input) */
@@ -102,7 +91,7 @@ export interface FormBuilderState {
   };
   /** Configurable metadata fields (date, machine, shift, operator, etc.) */
   metadata: BuilderMetadataField[];
-  /** Form sections (each contains a flat table) */
+  /** Form sections (each contains a unified table) */
   sections: BuilderSection[];
   /** Optional global observations / signature block at the bottom */
   globalField?: BuilderGlobalField;

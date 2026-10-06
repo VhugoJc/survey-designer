@@ -6,7 +6,6 @@ export type {
   FormBuilderState,
   BuilderSection,
   BuilderColumn,
-  BuilderColumnGroup,
   BuilderColumnType,
   BuilderRow,
   BuilderFooter,

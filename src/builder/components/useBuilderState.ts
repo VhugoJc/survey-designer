@@ -3,7 +3,6 @@ import {
   FormBuilderState,
   BuilderSection,
   BuilderColumn,
-  BuilderColumnGroup,
   BuilderColumnType,
   BuilderRow,
   BuilderFooter,
@@ -44,8 +43,36 @@ function uniqueKey(existing: string[], label: string): string {
   return key;
 }
 
+/** Get all leaf-level column keys from a section (recurses into groups) */
+function getAllColumnKeys(section: BuilderSection): string[] {
+  const keys: string[] = [];
+  for (const col of section.columns) {
+    if (col.isGroup && col.children) {
+      for (const child of col.children) {
+        if (child.key) keys.push(child.key);
+      }
+    } else if (col.key) {
+      keys.push(col.key);
+    }
+  }
+  return keys;
+}
+
+/** Get all leaf-level columns from a section */
+function getAllLeafColumns(section: BuilderSection): BuilderColumn[] {
+  const cols: BuilderColumn[] = [];
+  for (const col of section.columns) {
+    if (col.isGroup && col.children) {
+      for (const child of col.children) cols.push(child);
+    } else {
+      cols.push(col);
+    }
+  }
+  return cols;
+}
+
 // ──────────────────────────────────────────────
-// Hook — uses plain functions, NOT useCallback
+// Hook
 // ──────────────────────────────────────────────
 
 export function useBuilderState(initial?: FormBuilderState) {
@@ -79,18 +106,17 @@ export function useBuilderState(initial?: FormBuilderState) {
   }
 
   // ── Sections ──
-  function addSection() {
+  function addSection(title?: string): string {
     const sec: BuilderSection = {
       id: uid('sec'),
-      title: 'Nueva Sección',
-      layout: 'flat',
+      title: title ?? 'Nueva Sección',
       columns: [],
-      columnGroups: [],
       rows: [],
     };
     const next = { ...state, sections: [...state.sections, sec] };
     setState(next);
     pushHistory(next);
+    return sec.id;
   }
 
   function removeSection(id: string) {
@@ -123,183 +149,18 @@ export function useBuilderState(initial?: FormBuilderState) {
     pushHistory(next);
   }
 
-  function setSectionLayout(id: string, layout: 'flat' | 'grouped') {
-    const next = {
-      ...state,
-      sections: state.sections.map((s) => {
-        if (s.id !== id) return s;
-        if (layout === 'grouped') {
-          return { ...s, layout, columnGroups: s.columnGroups ?? [] };
-        }
-        return { ...s, layout, columns: s.columns ?? [] };
-      }),
-    };
-    setState(next);
-    pushHistory(next);
-  }
-
-  // ── Column Groups ──
-  function addColumnGroup(sectionId: string) {
-    const next = {
-      ...state,
-      sections: state.sections.map((sec) => {
-        if (sec.id !== sectionId) return sec;
-        const gid = uid('grp');
-        return {
-          ...sec,
-          columnGroups: [
-            ...(sec.columnGroups ?? []),
-            { id: gid, label: 'Nuevo Grupo', children: [] },
-          ],
-        };
-      }),
-    };
-    setState(next);
-    pushHistory(next);
-  }
-
-  function updateColumnGroup(
-    sectionId: string,
-    groupId: string,
-    patch: Partial<BuilderColumnGroup>,
-  ) {
-    const next = {
-      ...state,
-      sections: state.sections.map((sec) => {
-        if (sec.id !== sectionId) return sec;
-        return {
-          ...sec,
-          columnGroups: (sec.columnGroups ?? []).map((g) =>
-            g.id === groupId ? { ...g, ...patch } : g,
-          ),
-        };
-      }),
-    };
-    setState(next);
-    pushHistory(next);
-  }
-
-  function removeColumnGroup(sectionId: string, groupId: string) {
-    const next = {
-      ...state,
-      sections: state.sections.map((sec) => {
-        if (sec.id !== sectionId) return sec;
-        const group = (sec.columnGroups ?? []).find((g) => g.id === groupId);
-        if (!group) return sec;
-        // Remove child column keys from all rows
-        const keysToRemove = new Set(group.children.map((c) => c.key));
-        return {
-          ...sec,
-          columnGroups: (sec.columnGroups ?? []).filter((g) => g.id !== groupId),
-          rows: sec.rows.map((row) => {
-            const newCells = { ...row.cells };
-            for (const k of keysToRemove) delete newCells[k];
-            return { ...row, cells: newCells };
-          }),
-        };
-      }),
-    };
-    setState(next);
-    pushHistory(next);
-  }
-
-  function addGroupChild(sectionId: string, groupId: string) {
-    const next = {
-      ...state,
-      sections: state.sections.map((sec) => {
-        if (sec.id !== sectionId) return sec;
-        const groups = sec.columnGroups ?? [];
-        const allKeys = new Set<string>();
-        for (const g of groups) {
-          for (const c of g.children) allKeys.add(c.key);
-        }
-        const key = uniqueKey([...allKeys], 'nuevo');
-        return {
-          ...sec,
-          columnGroups: groups.map((g) =>
-            g.id === groupId
-              ? {
-                  ...g,
-                  children: [
-                    ...g.children,
-                    { key, label: 'Nuevo', type: 'text' as BuilderColumnType, editable: false },
-                  ],
-                }
-              : g,
-          ),
-        };
-      }),
-    };
-    setState(next);
-    pushHistory(next);
-  }
-
-  function updateGroupChild(
-    sectionId: string,
-    groupId: string,
-    childKey: string,
-    patch: Partial<BuilderColumn>,
-  ) {
-    const next = {
-      ...state,
-      sections: state.sections.map((sec) => {
-        if (sec.id !== sectionId) return sec;
-        return {
-          ...sec,
-          columnGroups: (sec.columnGroups ?? []).map((g) =>
-            g.id === groupId
-              ? {
-                  ...g,
-                  children: g.children.map((c) =>
-                    c.key === childKey ? { ...c, ...patch } : c,
-                  ),
-                }
-              : g,
-          ),
-        };
-      }),
-    };
-    setState(next);
-    pushHistory(next);
-  }
-
-  function removeGroupChild(sectionId: string, groupId: string, childKey: string) {
-    const next = {
-      ...state,
-      sections: state.sections.map((sec) => {
-        if (sec.id !== sectionId) return sec;
-        return {
-          ...sec,
-          columnGroups: (sec.columnGroups ?? []).map((g) =>
-            g.id === groupId
-              ? { ...g, children: g.children.filter((c) => c.key !== childKey) }
-              : g,
-          ),
-          rows: sec.rows.map((row) => {
-            const newCells = { ...row.cells };
-            delete newCells[childKey];
-            return { ...row, cells: newCells };
-          }),
-        };
-      }),
-    };
-    setState(next);
-    pushHistory(next);
-  }
-
-  // ── Columns (flat mode) ──
+  // ── Unified Columns ──
   function addColumn(sectionId: string) {
+    const key = uid('col');
     const next = {
       ...state,
       sections: state.sections.map((sec) => {
         if (sec.id !== sectionId) return sec;
-        const existing = sec.columns.map((c) => c.key);
-        const key = uniqueKey(existing, 'nuevo');
         return {
           ...sec,
           columns: [
             ...sec.columns,
-            { key, label: 'Nuevo', type: 'text' as const, editable: false },
+            { id: uid('col_def'), label: 'Nuevo', key, type: 'text' as BuilderColumnType, editable: false },
           ],
         };
       }),
@@ -308,20 +169,46 @@ export function useBuilderState(initial?: FormBuilderState) {
     pushHistory(next);
   }
 
-  function updateColumn(
-    sectionId: string,
-    colKey: string,
-    patch: Partial<BuilderColumn>,
-  ) {
+  function addColumnGroup(sectionId: string): string {
+    const gid = uid('grp');
     const next = {
       ...state,
       sections: state.sections.map((sec) => {
         if (sec.id !== sectionId) return sec;
         return {
           ...sec,
-          columns: sec.columns.map((col) =>
-            col.key === colKey ? { ...col, ...patch } : col,
-          ),
+          columns: [
+            ...sec.columns,
+            { id: gid, label: 'Nuevo Grupo', isGroup: true, children: [] },
+          ],
+        };
+      }),
+    };
+    setState(next);
+    pushHistory(next);
+    return gid;
+  }
+
+  function updateColumn(sectionId: string, colId: string, patch: Partial<BuilderColumn>) {
+    const next = {
+      ...state,
+      sections: state.sections.map((sec) => {
+        if (sec.id !== sectionId) return sec;
+        return {
+          ...sec,
+          columns: sec.columns.map((col) => {
+            if (col.id === colId) return { ...col, ...patch };
+            // Check inside group children
+            if (col.isGroup && col.children) {
+              return {
+                ...col,
+                children: col.children.map((child) =>
+                  child.id === colId ? { ...child, ...patch } : child,
+                ),
+              };
+            }
+            return col;
+          }),
         };
       }),
     };
@@ -329,22 +216,122 @@ export function useBuilderState(initial?: FormBuilderState) {
     pushHistory(next);
   }
 
-  function removeColumn(sectionId: string, colKey: string) {
+  function removeColumn(sectionId: string, colId: string) {
     const next = {
       ...state,
       sections: state.sections.map((sec) => {
         if (sec.id !== sectionId) return sec;
-        const { [colKey]: _omit, ...rest } = Object.fromEntries(
-          sec.rows.map((r) => [r.id, { ...r, cells: { ...r.cells } }]),
-        );
+        // Check if it's a top-level column or a group child
+        const isTopLevel = sec.columns.some((c) => c.id === colId);
+        let keysToRemove = new Set<string>();
+
+        if (isTopLevel) {
+          const col = sec.columns.find((c) => c.id === colId);
+          if (col) {
+            if (col.isGroup && col.children) {
+              for (const c of col.children) { if (c.key) keysToRemove.add(c.key); }
+            } else if (col.key) {
+              keysToRemove.add(col.key);
+            }
+          }
+          return {
+            ...sec,
+            columns: sec.columns.filter((c) => c.id !== colId),
+            rows: sec.rows.map((row) => {
+              const newCells = { ...row.cells };
+              for (const k of keysToRemove) delete newCells[k];
+              return { ...row, cells: newCells };
+            }),
+          };
+        }
+
+        // It's a group child — find which group it belongs to
+        let childKey = '';
+        const newColumns = sec.columns.map((col) => {
+          if (!col.isGroup || !col.children) return col;
+          const child = col.children.find((c) => c.id === colId);
+          if (child && child.key) childKey = child.key;
+          return {
+            ...col,
+            children: col.children.filter((c) => c.id !== colId),
+          };
+        });
         return {
           ...sec,
-          columns: sec.columns.filter((c) => c.key !== colKey),
-          rows: sec.rows.map((row) => {
-            const newCells = { ...row.cells };
-            delete newCells[colKey];
-            return { ...row, cells: newCells };
+          columns: newColumns,
+          rows: childKey
+            ? sec.rows.map((row) => {
+                const newCells = { ...row.cells };
+                delete newCells[childKey];
+                return { ...row, cells: newCells };
+              })
+            : sec.rows,
+        };
+      }),
+    };
+    setState(next);
+    pushHistory(next);
+  }
+
+  // ── Group children ──
+  function addGroupChild(sectionId: string, groupId: string) {
+    const key = uid('col');
+    const next = {
+      ...state,
+      sections: state.sections.map((sec) => {
+        if (sec.id !== sectionId) return sec;
+        return {
+          ...sec,
+          columns: sec.columns.map((col) => {
+            if (col.id !== groupId || !col.isGroup) return col;
+            const child: BuilderColumn = {
+              id: uid('child'),
+              label: 'Nuevo',
+              key,
+              type: 'text' as BuilderColumnType,
+              editable: false,
+            };
+            return {
+              ...col,
+              children: [...(col.children ?? []), child],
+            };
           }),
+          rows: sec.rows.map((row) => ({
+            ...row,
+            cells: { ...row.cells, [key]: '' },
+          })),
+        };
+      }),
+    };
+    setState(next);
+    pushHistory(next);
+  }
+
+  function removeGroupChild(sectionId: string, groupId: string, childId: string) {
+    const next = {
+      ...state,
+      sections: state.sections.map((sec) => {
+        if (sec.id !== sectionId) return sec;
+        let removedKey = '';
+        const newColumns = sec.columns.map((col) => {
+          if (col.id !== groupId || !col.isGroup) return col;
+          const child = col.children?.find((c) => c.id === childId);
+          if (child?.key) removedKey = child.key;
+          return {
+            ...col,
+            children: col.children?.filter((c) => c.id !== childId) ?? [],
+          };
+        });
+        return {
+          ...sec,
+          columns: newColumns,
+          rows: removedKey
+            ? sec.rows.map((row) => {
+                const newCells = { ...row.cells };
+                delete newCells[removedKey];
+                return { ...row, cells: newCells };
+              })
+            : sec.rows,
         };
       }),
     };
@@ -358,10 +345,9 @@ export function useBuilderState(initial?: FormBuilderState) {
       ...state,
       sections: state.sections.map((sec) => {
         if (sec.id !== sectionId) return sec;
+        const keys = getAllColumnKeys(sec);
         const cells: Record<string, string> = {};
-        for (const col of sec.columns) {
-          cells[col.key] = '';
-        }
+        for (const key of keys) cells[key] = '';
         return {
           ...sec,
           rows: [...sec.rows, { id: uid(`${sectionId}_row`), cells }],
@@ -402,12 +388,7 @@ export function useBuilderState(initial?: FormBuilderState) {
     pushHistory(next);
   }
 
-  function updateCell(
-    sectionId: string,
-    rowId: string,
-    colKey: string,
-    value: string,
-  ) {
+  function updateCell(sectionId: string, rowId: string, colKey: string, value: string) {
     const next = {
       ...state,
       sections: state.sections.map((sec) => {
@@ -519,16 +500,12 @@ export function useBuilderState(initial?: FormBuilderState) {
     removeSection,
     moveSection,
     updateSectionTitle,
-    setSectionLayout,
-    addColumnGroup,
-    updateColumnGroup,
-    removeColumnGroup,
-    addGroupChild,
-    updateGroupChild,
-    removeGroupChild,
     addColumn,
+    addColumnGroup,
     updateColumn,
     removeColumn,
+    addGroupChild,
+    removeGroupChild,
     addRow,
     removeRow,
     moveRow,
@@ -543,6 +520,10 @@ export function useBuilderState(initial?: FormBuilderState) {
     canRedo,
     undo,
     redo,
+    getAllLeafColumns: (sectionId: string) => {
+      const sec = state.sections.find((s) => s.id === sectionId);
+      return sec ? getAllLeafColumns(sec) : [];
+    },
   };
 }
 
