@@ -1,7 +1,13 @@
 import { useFormContext } from 'react-hook-form';
 import type { FormEngine } from '../engine/FormEngine';
 
-export type CellRole = 'display' | 'number-input' | 'text-input' | 'textarea' | 'checkbox';
+export type CellRole =
+  | 'display'
+  | 'number-input'
+  | 'text-input'
+  | 'textarea'
+  | 'checkbox'
+  | 'select';
 
 interface DynamicCellProps {
   engine: FormEngine;
@@ -13,6 +19,8 @@ interface DynamicCellProps {
   min?: number;
   max?: number;
   inputWidth?: 'normal' | 'wide';
+  /** Options for 'select' type */
+  options?: string[];
 }
 
 export function DynamicCell({
@@ -25,17 +33,14 @@ export function DynamicCell({
   min,
   max,
   inputWidth = 'normal',
+  options,
 }: DynamicCellProps) {
   const { register, watch } = useFormContext();
   const valuePath = `sections.${sectionId}.rows.${rowId}.cells.${machineKey}.value`;
 
   // ── DISPLAY (read-only text from row data) ──
   if (role === 'display') {
-    return (
-      <span className="cell-static">
-        {displayValue ?? '—'}
-      </span>
-    );
+    return <span className="cell-static">{displayValue ?? '—'}</span>;
   }
 
   // ── CHECKBOX ──
@@ -43,15 +48,12 @@ export function DynamicCell({
     const checkedPath = `sections.${sectionId}.rows.${rowId}.cells.${machineKey}.checked`;
     return (
       <div className="flex justify-center items-center h-full min-h-[44px]">
-        <input
-          {...register(checkedPath)}
-          type="checkbox"
-        />
+        <input {...register(checkedPath)} type="checkbox" />
       </div>
     );
   }
 
-  // ── TEXTAREA (for global fields) ──
+  // ── TEXTAREA ──
   if (role === 'textarea') {
     return (
       <textarea
@@ -60,6 +62,24 @@ export function DynamicCell({
         placeholder="—"
         className="field-input"
       />
+    );
+  }
+
+  // ── SELECT ──
+  if (role === 'select') {
+    const opts = options ?? ['Sí', 'No', 'N/A'];
+    return (
+      <select
+        {...register(valuePath)}
+        className="field-input min-w-[90px]"
+      >
+        <option value="">—</option>
+        {opts.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
     );
   }
 
@@ -76,7 +96,7 @@ export function DynamicCell({
     );
   }
 
-  // ── NUMBER INPUT (measurement readings) ──
+  // ── NUMBER INPUT ──
   const value = watch(valuePath) as number | null;
   const isOutOfRange =
     min !== undefined &&

@@ -7,6 +7,7 @@ export type {
   BuilderSection,
   BuilderColumn,
   BuilderColumnGroup,
+  BuilderColumnType,
   BuilderRow,
   BuilderFooter,
   BuilderFooterInput,

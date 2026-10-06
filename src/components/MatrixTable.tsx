@@ -116,6 +116,7 @@ function buildGroupedColumns(
           const tol = rowDef.tolerance;
           const min = tol?.min;
           const max = tol?.max;
+          const options = (col as Record<string, unknown>).options as string[] | undefined;
 
           return (
             <DynamicCell
@@ -127,6 +128,7 @@ function buildGroupedColumns(
               displayValue={displayValue}
               min={min}
               max={max}
+              options={options}
             />
           );
         },
@@ -165,6 +167,7 @@ function buildFlatColumns(
         const raw = info.row.original.raw;
         const role = inferRole(cellType, 'measurement');
         const displayValue = role === 'display' ? resolveFieldRef(raw, fieldRef) : undefined;
+        const options = (col as Record<string, unknown>).options as string[] | undefined;
 
         return (
           <DynamicCell
@@ -175,6 +178,7 @@ function buildFlatColumns(
             role={role}
             displayValue={displayValue}
             inputWidth={inputWidth as 'normal' | 'wide'}
+            options={options}
           />
         );
       },
@@ -192,6 +196,7 @@ function inferRole(cellType: string | undefined, rowType: string): CellRole {
   if (cellType === 'text-input') return 'text-input';
   if (cellType === 'textarea') return 'textarea';
   if (cellType === 'checkbox') return 'checkbox';
+  if (cellType === 'select') return 'select';
   if (cellType === 'number-input') return 'number-input';
   if (rowType === 'checklist') return 'checkbox';
   return 'number-input';

@@ -4,6 +4,7 @@ import {
   BuilderSection,
   BuilderColumn,
   BuilderColumnGroup,
+  BuilderColumnType,
   BuilderRow,
   BuilderFooter,
   BuilderMetadataField,
@@ -221,7 +222,7 @@ export function useBuilderState(initial?: FormBuilderState) {
                   ...g,
                   children: [
                     ...g.children,
-                    { key, label: 'Nuevo', type: 'text' as const, editable: false },
+                    { key, label: 'Nuevo', type: 'text' as BuilderColumnType, editable: false },
                   ],
                 }
               : g,

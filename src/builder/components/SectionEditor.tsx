@@ -1,5 +1,5 @@
 import type { BuilderEngine } from './useBuilderState';
-import type { BuilderSection, BuilderColumn, BuilderColumnGroup, BuilderRow } from '../index';
+import type { BuilderSection, BuilderColumn, BuilderColumnGroup, BuilderRow, BuilderColumnType } from '../index';
 
 interface SectionListEditorProps {
   engine: BuilderEngine;
@@ -163,7 +163,7 @@ function FlatColumnManager({ section, engine }: { section: BuilderSection; engin
         <p className="text-xs text-slate-400 italic">Sin columnas. Añade una columna.</p>
       )}
 
-      <div className="grid grid-cols-[1fr_2fr_80px_60px_40px] gap-2 text-xs text-slate-400 font-semibold uppercase border-b border-slate-200 pb-1 mb-1">
+      <div className="grid grid-cols-[1fr_2fr_90px_60px_40px] gap-2 text-xs text-slate-400 font-semibold uppercase border-b border-slate-200 pb-1 mb-1">
         <span>Clave</span>
         <span>Etiqueta</span>
         <span>Tipo</span>
@@ -188,39 +188,95 @@ function ColumnRow({
   engine: BuilderEngine;
 }) {
   return (
-    <div className="grid grid-cols-[1fr_2fr_80px_60px_40px] gap-2 items-center py-1 border-b border-slate-100">
-      <span className="text-xs text-slate-400 font-mono">{col.key}</span>
-      <input
-        type="text"
-        value={col.label}
-        onChange={(e) => engine.updateColumn(sectionId, col.key, { label: e.target.value })}
-        className="field-input text-xs w-full"
-      />
-      <select
-        value={col.type}
-        onChange={(e) =>
-          engine.updateColumn(sectionId, col.key, { type: e.target.value as 'text' | 'number' })
-        }
-        className="field-input text-xs"
-      >
-        <option value="text">text</option>
-        <option value="number">num</option>
-      </select>
-      <label className="flex items-center justify-center gap-1 text-xs text-slate-500">
+    <div className="border-b border-slate-100">
+      <div className="grid grid-cols-[1fr_2fr_90px_60px_40px] gap-2 items-center py-1">
+        <span className="text-xs text-slate-400 font-mono">{col.key}</span>
         <input
-          type="checkbox"
-          checked={col.editable}
-          onChange={(e) => engine.updateColumn(sectionId, col.key, { editable: e.target.checked })}
+          type="text"
+          value={col.label}
+          onChange={(e) => engine.updateColumn(sectionId, col.key, { label: e.target.value })}
+          className="field-input text-xs w-full"
         />
-      </label>
-      <button
-        type="button"
-        onClick={() => engine.removeColumn(sectionId, col.key)}
-        className="text-xs text-red-400 hover:text-red-600"
-        title="Eliminar columna"
-      >
-        ✕
-      </button>
+        <select
+          value={col.type}
+          onChange={(e) =>
+            engine.updateColumn(sectionId, col.key, { type: e.target.value as BuilderColumnType })
+          }
+          className="field-input text-xs"
+        >
+          <option value="text">Texto</option>
+          <option value="number">Número</option>
+          <option value="checkbox">Checkbox</option>
+          <option value="textarea">Texto largo</option>
+          <option value="select">Selección</option>
+        </select>
+        <label className="flex items-center justify-center gap-1 text-xs text-slate-500">
+          <input
+            type="checkbox"
+            checked={col.editable}
+            onChange={(e) => engine.updateColumn(sectionId, col.key, { editable: e.target.checked })}
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => engine.removeColumn(sectionId, col.key)}
+          className="text-xs text-red-400 hover:text-red-600"
+          title="Eliminar columna"
+        >
+          ✕
+        </button>
+      </div>
+      {col.type === 'select' && (
+        <div className="px-2 py-1 bg-slate-50 text-[10px]">
+          <span className="text-slate-400 font-semibold">Opciones:</span>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {(col.options ?? []).map((opt, oi) => (
+              <span
+                key={oi}
+                className="inline-flex items-center gap-1 text-[11px] bg-slate-100 border border-slate-300 rounded px-2 py-0.5"
+              >
+                {opt}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = (col.options ?? []).filter((_, i) => i !== oi);
+                    engine.updateColumn(sectionId, col.key, { options: updated.length > 0 ? updated : undefined });
+                  }}
+                  className="text-[10px] text-red-400 hover:text-red-600 leading-none"
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+          </div>
+          <div className="flex gap-1 mt-1">
+            <input
+              type="text"
+              className="field-input text-[11px] flex-1"
+              placeholder="Nueva opción (Enter o coma para añadir)"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                  e.preventDefault();
+                  const val = (e.target as HTMLInputElement).value.trim();
+                  if (val.length > 0) {
+                    const current = col.options ?? [];
+                    engine.updateColumn(sectionId, col.key, { options: [...current, val] });
+                  }
+                  (e.target as HTMLInputElement).value = '';
+                }
+              }}
+              onBlur={(e) => {
+                const val = e.target.value.trim();
+                if (val.length > 0) {
+                  const current = col.options ?? [];
+                  engine.updateColumn(sectionId, col.key, { options: [...current, val] });
+                }
+                e.target.value = '';
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -305,13 +361,16 @@ function GroupedColumnManager({ section, engine }: { section: BuilderSection; en
                 value={child.type}
                 onChange={(e) =>
                   engine.updateGroupChild(section.id, group.id, child.key, {
-                    type: e.target.value as 'text' | 'number',
+                    type: e.target.value as BuilderColumnType,
                   })
                 }
                 className="field-input text-[11px]"
               >
-                <option value="text">text</option>
-                <option value="number">num</option>
+                <option value="text">Texto</option>
+                <option value="number">Número</option>
+                <option value="checkbox">Checkbox</option>
+                <option value="textarea">Texto largo</option>
+                <option value="select">Selección</option>
               </select>
               <label className="flex items-center justify-center gap-1 text-[10px] text-slate-500">
                 <input

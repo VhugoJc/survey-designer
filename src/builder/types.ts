@@ -5,15 +5,19 @@
 // ──────────────────────────────────────────────────────────
 
 // ── Column definition in the builder ──
+export type BuilderColumnType = 'text' | 'number' | 'checkbox' | 'textarea' | 'select';
+
 export interface BuilderColumn {
   /** Unique key within the section (snake_case, auto-generated) */
   key: string;
   /** Display label shown in the rendered table header */
   label: string;
-  /** Data type for editable columns: "text" | "number" */
-  type: 'text' | 'number';
+  /** Data type for editable columns */
+  type: BuilderColumnType;
   /** Whether this column is user-editable or read-only */
   editable: boolean;
+  /** Options for 'select' type columns */
+  options?: string[];
 }
 
 // ── Column group (for grouped headers like M11 → ESTÁNDAR + LECTURA) ──

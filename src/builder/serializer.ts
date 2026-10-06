@@ -47,6 +47,17 @@ function generateColumnKey(existing: string[], label: string): string {
 // Build a single section's JSON output
 // ──────────────────────────────────────────────────────────
 
+function mapCellType(col: BuilderColumn): string {
+  if (!col.editable) return 'display';
+  switch (col.type) {
+    case 'number': return 'number-input';
+    case 'checkbox': return 'checkbox';
+    case 'textarea': return 'textarea';
+    case 'select': return 'select';
+    default: return 'text-input';
+  }
+}
+
 function buildSectionJson(
   section: BuilderSection,
   sectionIndex: number,
@@ -69,8 +80,9 @@ function buildSectionJson(
             label: col.label,
             editable: col.editable,
             type: col.type,
-            cellType: col.editable ? (col.type === 'number' ? 'number-input' : 'text-input') : 'display',
+            cellType: mapCellType(col),
             fieldRef: col.editable ? undefined : key,
+            ...(col.options ? { options: col.options } : {}),
           };
         });
 
@@ -132,7 +144,14 @@ function buildSectionJson(
   const columns: Record<string, unknown>[] = section.columns.map((col) => {
     const key = col.key || generateColumnKey([...usedKeys], col.label);
     usedKeys.add(key);
-    return { key, label: col.label, editable: col.editable, type: col.type };
+    return {
+      key,
+      label: col.label,
+      editable: col.editable,
+      type: col.type,
+      cellType: mapCellType(col),
+      ...(col.options ? { options: col.options } : {}),
+    };
   });
 
   const rows: Record<string, unknown>[] = section.rows.map((row, rowIndex) => {
