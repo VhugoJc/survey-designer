@@ -1,0 +1,452 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────
+   MODERN FLUID THEME — FEVISA Industrial Reports
+   ───────────────────────────────────────────── */
+
+:root {
+  --accent-red: #dc2626;
+  --accent-green: #16a34a;
+  --accent-red-bg: #fef2f2;
+  --accent-green-bg: #f0fdf4;
+  --field-bg: #f8fafc;
+  --field-border: #cbd5e1;
+  --field-focus-bg: #eff6ff;
+  --field-focus-border: #3b82f6;
+  --slate-50: #f8fafc;
+  --slate-200: #e2e8f0;
+  --slate-600: #475569;
+  --slate-800: #1e293b;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f1f5f9; /* slate-50 equivalent */
+  color: #0f172a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── Fluid canvas ── */
+.fluid-canvas {
+  max-width: 1280px; /* max-w-7xl */
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+/* ── Elevated card ── */
+.report-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+/* ── Section title ── */
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1e293b;
+  border-bottom: 2px solid #1e293b;
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+}
+
+/* ── Table ── */
+.paper-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 13px;
+  border: 1px solid #cbd5e1;
+}
+
+.paper-table thead th {
+  border: 1px solid #94a3b8;
+  padding: 10px 12px;
+  text-align: center;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  background: #1e293b;       /* slate-800 */
+  color: white;
+}
+
+.paper-table thead th.sub-header {
+  background: #334155;       /* slate-700 */
+  color: white;
+}
+
+.paper-table tbody td {
+  border: 1px solid #e2e8f0;
+  padding: 8px 10px;
+  text-align: center;
+  vertical-align: middle;
+  min-height: 44px;          /* touch target */
+}
+
+.paper-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.paper-table tbody tr:nth-child(odd) td {
+  background: white;
+}
+
+/* ── Static (read-only) cell text ── */
+.cell-static {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 6px;
+}
+
+/* ── Form fields ── */
+.field-input {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  padding: 8px 10px;
+  font-family: 'JetBrains Mono', 'Cascadia Code', 'Courier New', monospace;
+  font-size: 13px;
+  color: #0f172a;
+  outline: none;
+  border-radius: 6px;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+  min-height: 44px;          /* touch target */
+  box-sizing: border-box;
+}
+
+.field-input:hover {
+  border-color: #93c5fd;
+  background: #f0f9ff;
+}
+
+.field-input:focus {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.field-input::placeholder {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* ── Number input ── */
+input[type='number'].field-input {
+  text-align: center;
+  max-width: 90px;
+}
+
+/* ── Text input ── */
+input[type='text'].field-input {
+  text-align: center;
+  min-width: 80px;
+}
+
+input[type='text'].field-input-wide {
+  min-width: 180px;
+  text-align: left;
+}
+
+/* ── Textarea ── */
+textarea.field-input {
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+  text-align: left;
+  padding: 10px 12px;
+}
+
+/* ── Checkbox ── */
+input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  border: 2px solid #475569;
+  border-radius: 4px;
+  accent-color: #1e293b;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ── Tolerance badge ── */
+.tolerance-badge {
+  font-size: 10px;
+  color: #94a3b8;
+  font-family: 'Courier New', monospace;
+}
+
+/* ── Out-of-range / in-range ── */
+.out-of-range {
+  background: #fef2f2 !important;
+  border-color: #dc2626 !important;
+}
+
+.out-of-range input {
+  color: #dc2626;
+}
+
+.in-range {
+  background: #f0fdf4 !important;
+  border-color: #16a34a !important;
+}
+
+/* ── Footer notes ── */
+.footer-note {
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
+  line-height: 1.6;
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border-left: 3px solid #94a3b8;
+  border-radius: 6px;
+}
+
+/* ── Global fields section ── */
+.global-fields-section {
+  margin-top: 24px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: 20px 24px;
+}
+
+.global-fields-section label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #1e293b;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* ── Report footer ── */
+.report-footer {
+  margin-top: 32px;
+  padding: 16px 0 8px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* ── Print button ── */
+.print-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  background: #1e293b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  min-height: 48px;
+}
+
+.print-button:hover {
+  background: #334155;
+  transform: translateY(-1px);
+}
+
+.print-button:active {
+  transform: translateY(0);
+}
+
+/* ── Inline inputs ── */
+.inline-input-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 8px 0;
+}
+
+.inline-input-row label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+}
+
+.inline-input-row input {
+  flex: 1;
+}
+
+/* ── Header / Metadata cards ── */
+.paper-header {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.paper-header label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.paper-header input,
+.paper-header select {
+  width: 100%;
+}
+
+/* ── Metadata heading ── */
+.metadata-heading {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #475569;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+/* ─────────────────────────────────────────────
+   PRINT STYLES
+   ───────────────────────────────────────────── */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm 18mm;
+  }
+
+  body {
+    background: white;
+    font-size: 11px;
+    color: black;
+  }
+
+  .fluid-canvas {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .report-card,
+  .paper-header,
+  .global-fields-section {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    background: white;
+    padding: 12px 16px;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .paper-table {
+    border: 1px solid black;
+    page-break-inside: auto;
+    min-width: auto;
+  }
+
+  .paper-table thead th {
+    background: #333 !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .paper-table thead th.sub-header {
+    background: #444 !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .paper-table tbody td {
+    min-height: auto;
+    padding: 4px 6px;
+  }
+
+  .paper-table tr {
+    page-break-inside: avoid;
+  }
+
+  .paper-table thead {
+    display: table-header-group;
+  }
+
+  .section-title {
+    page-break-after: avoid;
+  }
+
+  .field-input {
+    border: 1px solid #999;
+    background: transparent;
+    min-height: auto;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .field-input:focus {
+    background: transparent;
+    border-color: #999;
+    box-shadow: none;
+  }
+
+  input[type='checkbox'] {
+    border: 1px solid black;
+    min-height: auto;
+    min-width: auto;
+  }
+
+  .footer-note {
+    color: #555;
+    border-left: 2px solid #999;
+    background: transparent;
+  }
+
+  .report-footer {
+    color: #555;
+  }
+
+  .out-of-range {
+    background: transparent !important;
+  }
+
+  .in-range {
+    background: transparent !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   SCREEN-ONLY utilities
+   ───────────────────────────────────────────── */
+
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}

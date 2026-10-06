@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "schemaVersion": "1.0",
+  "meta": {
+    "id": "fevisa-presiones-mecanismos-v1",
+    "name": "Reporte de Verificación de Presiones de Mecanismos de Máquinas",
+    "description": "Formato digital exacto para la inspección de presiones en planta FEVISA"
+  },
+  "header": {
+    "companyName": { "type": "string", "label": "Empresa", "default": "FEVISA" },
+    "reportTitle": { "type": "string", "label": "Título", "default": "REPORTE DE VERIFICACIÓN DE PRESIONES DE MECANISMOS DE MÁQUINAS" },
+    "logoUrl": { "type": "string", "label": "Logo URL", "default": "/assets/fevisa-logo.png" }
+  },
+  "metadata": {
+    "inspector": { "type": "string", "label": "ENCARGADO INSPECCIÓN:" },
+    "date": { "type": "string", "format": "date", "label": "FECHA:" }
+  },
+  "sections": [
+    {
+      "id": "seccion-presiones",
+      "type": "matrix-table",
+      "table": {
+        "columnGroupHeaders": [
+          {
+            "label": "TOLERANCIA",
+            "colspan": 2,
+            "columns": [
+              { "key": "tol_min", "label": "MÍNIMO", "cellType": "display", "fieldRef": "tolerance.min" },
+              { "key": "tol_max", "label": "MÁXIMO", "cellType": "display", "fieldRef": "tolerance.max" }
+            ]
+          },
+          {
+            "label": "M11",
+            "colspan": 2,
+            "columns": [
+              { "key": "m11_std", "label": "ESTÁNDAR", "cellType": "display", "fieldRef": "standards.m11" },
+              { "key": "m11_val", "label": "LECTURA", "cellType": "number-input" }
+            ]
+          },
+          {
+            "label": "M12",
+            "colspan": 2,
+            "columns": [
+              { "key": "m12_std", "label": "ESTÁNDAR", "cellType": "display", "fieldRef": "standards.m12" },
+              { "key": "m12_val", "label": "LECTURA", "cellType": "number-input" }
+            ]
+          },
+          {
+            "label": "M21",
+            "colspan": 2,
+            "columns": [
+              { "key": "m21_std", "label": "ESTÁNDAR", "cellType": "display", "fieldRef": "standards.m21" },
+              { "key": "m21_val", "label": "LECTURA", "cellType": "number-input" }
+            ]
+          },
+          {
+            "label": "M22",
+            "colspan": 2,
+            "columns": [
+              { "key": "m22_std", "label": "ESTÁNDAR", "cellType": "display", "fieldRef": "standards.m22" },
+              { "key": "m22_val", "label": "LECTURA", "cellType": "number-input" }
+            ]
+          },
+          {
+            "label": "M33",
+            "colspan": 2,
+            "columns": [
+              { "key": "m33_std", "label": "ESTÁNDAR", "cellType": "display", "fieldRef": "standards.m33" },
+              { "key": "m33_val", "label": "LECTURA", "cellType": "number-input" }
+            ]
+          },
+          {
+            "label": "ACCIONES CORRECTIVAS",
+            "colspan": 3,
+            "columns": [
+              { "key": "observaciones", "label": "OBSERVACIONES", "cellType": "text-input" },
+              { "key": "correccion", "label": "CORRECCIÓN", "cellType": "text-input" },
+              { "key": "contramedida", "label": "CONTRAMEDIDA", "cellType": "text-input" }
+            ]
+          }
+        ],
+        "rows": [
+          { "id": "presion_subida_punzon_a", "label": "Presión de Subida de Punzón Máquina A", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 50, "max": 80 }, "standards": { "m11": "65 Psi", "m12": "65 Psi", "m21": "65 Psi", "m22": "65 Psi", "m33": "65 Psi" } },
+          { "id": "presion_subida_punzon_b", "label": "Presión de Subida de Punzón Máquina B", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 50, "max": 80 }, "standards": { "m11": "65 psi", "m12": "65 psi", "m21": "65 psi", "m22": "65 psi", "m33": "N/A" } },
+          { "id": "presion_aire_enfriamiento_punzon_a", "label": "Presión de Aire de Enfriamiento de punzón Máquina A", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 55, "max": 85 }, "standards": { "m11": "70 psi", "m12": "70 psi", "m21": "70 psi", "m22": "70 psi", "m33": "70 psi" } },
+          { "id": "presion_aire_enfriamiento_punzon_b", "label": "Presión de Aire de Enfriamiento de punzón Máquina B", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 55, "max": 85 }, "standards": { "m11": "70 psi", "m12": "70 psi", "m21": "70 psi", "m22": "70 psi", "m33": "N/A" } },
+          { "id": "presion_aire_piloto_a", "label": "Presión de Aire Piloto Máquina A", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 60, "max": 75 }, "standards": { "m11": "65 psi", "m12": "65 psi", "m21": "65 psi", "m22": "65 psi", "m33": "65 psi" } },
+          { "id": "presion_aire_piloto_b", "label": "Presión de Aire Piloto Máquina B", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 60, "max": 75 }, "standards": { "m11": "65 psi", "m12": "65 psi", "m21": "65 psi", "m22": "65 psi", "m33": "N/A" } },
+          { "id": "presion_aire_alta_a", "label": "Presión de Aire de Alta Máquina A", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 40, "max": 50 }, "standards": { "m11": "45 psi", "m12": "45 psi", "m21": "45 psi", "m22": "45 psi", "m33": "45 psi" } },
+          { "id": "presion_aire_alta_b", "label": "Presión de Aire de Alta Máquina B", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 40, "max": 50 }, "standards": { "m11": "45 psi", "m12": "45 psi", "m21": "45 psi", "m22": "45 psi", "m33": "N/A" } },
+          { "id": "presion_aire_baja_a", "label": "Presión de Aire de Baja Máquina A", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 27, "max": 37 }, "standards": { "m11": "30.45 psi", "m12": "30.45 psi", "m21": "30.45 psi", "m22": "30.45 psi", "m33": "30.45 psi" } },
+          { "id": "presion_aire_baja_b", "label": "Presión de Aire de Baja Máquina B", "unit": "psi", "rowType": "measurement", "tolerance": { "min": 27, "max": 37 }, "standards": { "m11": "30.45 psi", "m12": "30.45 psi", "m21": "30.45 psi", "m22": "30.45 psi", "m33": "N/A" } }
+        ]
+      },
+      "footerNotes": [
+        "El reporte de Verificación de Presiones de Mecanismos de Máquinas, se realizará cada 5 días por el mecánico asignado por el supervisor.",
+        "Si se detecta una presión fuera de estándar es obligatorio llenar los cuadros de OBSERVACIÓN, CORRECCIÓN y CONTRAMEDIDA.",
+        "(OBSERVACIÓN) Que se detectó en el recorrido. (CORRECCIÓN) Como se reparó lo detectado. (CONTRAMEDIDA) Como prevenir lo detectado.",
+        "(+/-) Indica el rango máximo y mínimo de la variable. N/A: Indica que no aplica la presión en esa variable."
+      ],
+      "conditionalValidation": {
+        "trigger": "outOfTolerance",
+        "requiredFields": ["observaciones", "correccion", "contramedida"],
+        "style": {
+          "outOfTolerance": { "bgColor": "#FFF0F0", "borderColor": "#FF0000" },
+          "inTolerance": { "bgColor": "#FFFFFF", "borderColor": "#CCCCCC" }
+        }
+      }
+    }
+  ]
+}
