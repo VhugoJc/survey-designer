@@ -74,25 +74,31 @@ function buildGroupedColumns(
   const ch = createColumnHelper<GroupedRowData>();
   const columns: ColumnDef<GroupedRowData>[] = [];
 
-  columns.push(
-    ch.display({
-      id: 'row-label',
-      header: () => <span>Parámetro</span>,
-      cell: (info) => (
-        <div className="flex items-center gap-1 min-w-[220px] text-left">
-          <span className="text-sm font-medium text-slate-800">
-            {info.row.original.label}
-          </span>
-          {info.row.original.unit && (
-            <span className="text-[11px] text-slate-400 ml-1">
-              ({info.row.original.unit})
+  // Only add the row-label column if rows actually have labels
+  const rows = section.table?.rows ?? [];
+  const hasLabels = rows.some((r) => r.label && r.label.trim().length > 0);
+
+  if (hasLabels) {
+    columns.push(
+      ch.display({
+        id: 'row-label',
+        header: () => <span>Parámetro</span>,
+        cell: (info) => (
+          <div className="flex items-center gap-1 min-w-[220px] text-left">
+            <span className="text-sm font-medium text-slate-800">
+              {info.row.original.label}
             </span>
-          )}
-        </div>
-      ),
-      enableSorting: false,
-    }),
-  );
+            {info.row.original.unit && (
+              <span className="text-[11px] text-slate-400 ml-1">
+                ({info.row.original.unit})
+              </span>
+            )}
+          </div>
+        ),
+        enableSorting: false,
+      }),
+    );
+  }
 
   for (const group of section.table?.columnGroupHeaders ?? []) {
     const groupCols: ColumnDef<GroupedRowData>[] = (group.columns ?? []).map((col) => {
