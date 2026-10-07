@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useBuilderState } from './components/useBuilderState';
 import { LivePreview } from './components/LivePreview';
 import { buildJsonSchema, importFromJsonSchema } from './serializer';
+import { registerTemplate, updateTemplate } from '../schema/registry';
+import { Modal } from './components/Modal';
 import type { FormBuilderState, BuilderColumn } from './types';
 import {
   HeaderConfigModal,
@@ -18,12 +21,14 @@ import {
 
 interface FormBuilderAppProps {
   initialJson?: Record<string, unknown>;
+  templateId?: string;
 }
 
-export function FormBuilderApp({ initialJson }: FormBuilderAppProps) {
+export function FormBuilderApp({ initialJson, templateId }: FormBuilderAppProps) {
   const initial: FormBuilderState | undefined =
     initialJson ? importFromJsonSchema(initialJson) : undefined;
   const engine = useBuilderState(initial);
+  const navigate = useNavigate();
 
   // Helper: always read fresh state
   const getState = () => engine.getState();
@@ -48,6 +53,27 @@ export function FormBuilderApp({ initialJson }: FormBuilderAppProps) {
   const [deleteMessage, setDeleteMessage] = useState('');
   const [deleteAction, setDeleteAction] = useState<() => void>(() => {});
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+
+  // Save modal logic
+  const handleSaveNew = () => {
+    const json = buildJsonSchema(getState());
+    const title = getState().document.title || 'Plantilla Personalizada';
+    registerTemplate(json, title);
+    setShowSaveModal(false);
+    navigate('/reports');
+  };
+
+  const handleUpdateExisting = () => {
+    if (!templateId) return;
+    const json = buildJsonSchema(getState());
+    const title = getState().document.title || 'Plantilla Personalizada';
+    updateTemplate(templateId, json, title);
+    setShowSaveModal(false);
+    navigate('/reports');
+  };
+
+  const openSaveModal = () => setShowSaveModal(true);
 
   // Helpers
   const confirmDelete = (message: string, action: () => void) => {
@@ -112,7 +138,9 @@ export function FormBuilderApp({ initialJson }: FormBuilderAppProps) {
               className="px-2.5 py-1 text-xs font-medium text-slate-600 border border-slate-300 rounded-md hover:bg-slate-100 disabled:opacity-40">↪ Rehacer</button>
           </div>
           <span className="text-xs text-slate-400">{getState().sections.length} secciones · {getState().metadata.length} metadatos</span>
-          <div className="ml-auto">
+          <div className="ml-auto flex gap-2">
+            <button type="button" onClick={openSaveModal}
+              className="px-3 py-1.5 text-xs font-bold text-white bg-green-700 rounded-md hover:bg-green-600">💾 Guardar</button>
             <button type="button" onClick={() => setShowExportModal(true)}
               className="px-3 py-1.5 text-xs font-bold text-white bg-slate-700 rounded-md hover:bg-slate-600">⚙️ Avanzado</button>
           </div>
@@ -295,6 +323,37 @@ export function FormBuilderApp({ initialJson }: FormBuilderAppProps) {
       <RowConfigModal open={showRowModal} onClose={() => setShowRowModal(false)} engine={engine} sectionId={rowModalSectionId} rowId={rowModalRowId} columns={rowModalColumns} />
       <ConfirmDeleteModal open={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={deleteAction} message={deleteMessage} />
       <ExportModal open={showExportModal} onClose={() => setShowExportModal(false)} engine={engine} />
+
+      {/* ── Save Modal ── */}
+      <Modal open={showSaveModal} onClose={() => setShowSaveModal(false)} title="Guardar Plantilla">
+        <div className="space-y-3 px-5 py-4">
+          {templateId ? (
+            <p className="text-sm text-slate-600">
+              Esta plantilla ya existe. ¿Deseas actualizarla o guardar una copia como nueva?
+            </p>
+          ) : (
+            <p className="text-sm text-slate-600">
+              ¿Guardar esta plantilla como nuevo reporte en la galería?
+            </p>
+          )}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" onClick={() => setShowSaveModal(false)}
+              className="px-3 py-1.5 text-xs text-slate-500 border border-slate-300 rounded-md hover:bg-slate-100">
+              Cancelar
+            </button>
+            {templateId && (
+              <button type="button" onClick={handleUpdateExisting}
+                className="px-3 py-1.5 text-xs font-bold text-white bg-blue-600 rounded-md hover:bg-blue-500">
+                💾 Actualizar existente
+              </button>
+            )}
+            <button type="button" onClick={handleSaveNew}
+              className="px-3 py-1.5 text-xs font-bold text-white bg-green-700 rounded-md hover:bg-green-600">
+              {templateId ? '📄 Guardar como nueva' : '💾 Guardar'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

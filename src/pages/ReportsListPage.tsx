@@ -2,20 +2,35 @@
 // ReportsListPage — Gallery of available report templates
 // ──────────────────────────────────────────────
 
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getTemplateList } from '../schema/registry';
+import { getTemplateList, removeTemplate } from '../schema/registry';
 
 export default function ReportsListPage() {
   const navigate = useNavigate();
-  const templates = getTemplateList();
+  const [templates, setTemplates] = useState(getTemplateList());
+
+  const handleRemove = (id: string) => {
+    removeTemplate(id);
+    setTemplates(getTemplateList());
+  };
 
   return (
     <div className="fluid-canvas">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-slate-800">Reportes / Galería</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Seleccione una plantilla de reporte para comenzar a llenar.
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-slate-800">Reportes / Galería</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Seleccione una plantilla de reporte para comenzar a llenar.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/reports/new')}
+          className="px-5 py-2.5 text-sm font-bold text-white bg-green-700 rounded-lg hover:bg-green-600 transition-colors"
+        >
+          + Nuevo Reporte
+        </button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -38,13 +53,21 @@ export default function ReportsListPage() {
                 <span>📅 {tpl.lastModified}</span>
               </div>
             </div>
-            <div className="px-5 py-3 border-t border-slate-100">
+            <div className="px-5 py-3 border-t border-slate-100 flex gap-2">
               <button
                 type="button"
                 onClick={() => navigate(`/reports/${tpl.id}`)}
-                className="w-full py-2 text-sm font-semibold text-white bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"
+                className="flex-1 py-2 text-sm font-semibold text-white bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"
               >
                 📋 Llenar Reporte
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRemove(tpl.id)}
+                className="py-2 px-3 text-sm font-semibold text-red-500 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                title="Eliminar plantilla"
+              >
+                🗑️
               </button>
             </div>
           </div>

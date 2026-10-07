@@ -17,7 +17,7 @@ export default function BuilderPage() {
 
   return (
     <div className="fluid-canvas">
-      <FormBuilderApp initialJson={initialJson} />
+      <FormBuilderApp initialJson={initialJson} templateId={templateId} />
     </div>
   );
 }

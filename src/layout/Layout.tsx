@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Menu, X, FileText, PlusCircle, Wrench } from 'lucide-react';
+import { Menu, X, FileText } from 'lucide-react';
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -14,8 +14,6 @@ export default function Layout() {
 
   const navItems = [
     { label: 'Reportes / Galería', icon: FileText, href: '/reports' },
-    { label: 'Nuevo Reporte', icon: PlusCircle, href: '/reports/new' },
-    { label: 'Diseñador de Formularios', icon: Wrench, href: '/builder' },
   ];
 
   return (
