@@ -11,9 +11,11 @@
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
     "@tanstack/react-table": "^8.21.3",
+    "lucide-react": "^1.52.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.89.0",
+    "react-router-dom": "^7.18.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
